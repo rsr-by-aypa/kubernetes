@@ -1,5 +1,12 @@
 @echo off
 
+REM Erstellen des Docker-Registry-Secrets
+kubectl create secret docker-registry rsr-secret ^
+  --docker-server=ghcr.io ^
+  --docker-username=<username> ^
+  --docker-password=<token> ^
+  --docker-email=irgendwas@gmx.de
+
 echo Secret created successfully.
 
 echo Applying Kubernetes resources...
