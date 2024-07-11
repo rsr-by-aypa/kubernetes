@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-microservice
+  template:
+    metadata:
+      labels:
+        app: product-microservice
+    spec:
+      containers:
+      - name: product-microservice
+        image: ghcr.io/rsr-by-aypa/product-microservice:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_RABBITMQ_HOST
+          value: rabbitmq
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://postgres-for-product-microservice:5432/ms-product
+        - name: SPRING_DATASOURCE_USERNAME
+          value: rsr
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: postgres
+      imagePullSecrets:
+      - name: rsr-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-microservice
+spec:
+  selector:
+    app: product-microservice
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  type: LoadBalancer

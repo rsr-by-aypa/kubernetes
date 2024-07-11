@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:legacy
+        ports:
+        - containerPort: 8081
+        env:
+        - name: KEYCLOAK_ADMIN
+          value: admin
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          value: admin
+        - name: DB_VENDOR
+          value: POSTGRES
+        - name: DB_ADDR
+          value: postgres-for-keycloak
+        - name: DB_SCHEMA
+          value: public
+        - name: DB_DATABASE
+          value: keycloak_db
+        - name: DB_USER
+          value: rsr_admin
+        - name: DB_PASSWORD
+          value: S3cret
+        - name: KEYCLOAK_USER
+          value: rsr_admin
+        - name: KEYCLOAK_PASSWORD
+          value: rsr_password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+spec:
+  selector:
+    app: keycloak
+  ports:
+  - protocol: TCP
+    port: 8081
+    targetPort: 8081
+  type: LoadBalancer
