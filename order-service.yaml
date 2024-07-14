@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-microservice
+  template:
+    metadata:
+      labels:
+        app: order-microservice
+    spec:
+      containers:
+      - name: order-microservice
+        image: ghcr.io/rsr-by-aypa/order-microservice:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_RABBITMQ_HOST
+          value: rabbitmq
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://postgres-for-order-microservice:5432/ms-product
+        - name: SPRING_DATASOURCE_USERNAME
+          value: rsr
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: postgres
+      imagePullSecrets:
+      - name: rsr-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-microservice
+spec:
+  selector:
+    app: order-microservice
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  type: LoadBalancer
